@@ -13,7 +13,7 @@ class MentalState
 end
 
 def audit_sanity(bedtime_mental_state)
-  return 0 unless bedtime_mental_state.auditable?
+  raise "Mental State Not Auditable" unless bedtime_mental_state.auditable?
   if bedtime_mental_state.audit!.ok?
     MorningMentalState.new(:ok)
   else 
@@ -21,10 +21,11 @@ def audit_sanity(bedtime_mental_state)
   end
 end
 
-if audit_sanity(bedtime_mental_state) == 0
-  puts "error"
-else
-  new_state = audit_sanity(bedtime_mental_state)
+begin  
+  audit_sanity(bedtime_mental_state) == 0
+  raise "Invalid mental state"
+rescue Exception => ex
+  puts ex.message
 end
 
 # Exercise 5 Part 2 (Don't Return Null / Null Object Pattern)
@@ -34,7 +35,7 @@ class BedtimeMentalState < MentalState ; end
 class MorningMentalState < MentalState ; end
 
 def audit_sanity(bedtime_mental_state)
-  return nil unless bedtime_mental_state.auditable?
+  return MorningMentalState.new() unless bedtime_mental_state.auditable?
   if bedtime_mental_state.audit!.ok?
     MorningMentalState.new(:ok)
   else 
@@ -49,7 +50,9 @@ new_state.do_work
 
 require 'candy_service'
 
-machine = CandyMachine.new
+class myCandyMachine < CandyMachine ; end
+
+machine = myCandyMachine.new
 machine.prepare
 
 if machine.ready?
